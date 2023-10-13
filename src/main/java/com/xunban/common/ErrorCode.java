@@ -1,4 +1,4 @@
-package com.xunban.common.enumeration;
+package com.xunban.common;
 
 /**
  * 错误码

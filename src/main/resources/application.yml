@@ -1,14 +1,48 @@
+# 公共配置文件
 spring:
+  profiles:
+    active: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/xunban
     username: root
     password: ybwell
+  # session 失效时间（分钟）
+  session:
+    timeout: 86400
+    store-type: redis
+  # redis 配置
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      database: 1
 logging:
   level:
     com.xunban.mapper: debug
+server:
+  port: 8080
 
-#????????
+# springdoc-openapi项目配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.xunban
+
+# knife4j的增强配置，不需要增强可以不配
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+# 关闭驼峰映射
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false

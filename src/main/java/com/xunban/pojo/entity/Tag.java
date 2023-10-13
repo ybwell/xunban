@@ -12,19 +12,19 @@ import java.util.Date;
 @TableName("tag")
 @Data
 public class Tag {
-    private int id;
+    private Integer id;
 
     // 标签名称
     private String tagName;
 
     // 用户id
-    private int userId;
+    private Integer userId;
 
     // 父标签id
-    private int parentId;
+    private Integer parentId;
 
     // 0：不是, 1：是
-    private int isParent;
+    private Integer isParent;
 
     // 创建时间
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -35,5 +35,5 @@ public class Tag {
     private Date updateTime;
 
     // 是否删除 0：否
-    private int isDelete;
+    private Integer isDelete;
 }

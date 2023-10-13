@@ -1,6 +1,6 @@
-package com.xunban.common.exception;
+package com.xunban.exception;
 
-import com.xunban.common.enumeration.ErrorCode;
+import com.xunban.common.ErrorCode;
 
 /**
  * 自定义异常类
