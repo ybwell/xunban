@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.xunban.common.ErrorCode;
+import com.xunban.constant.UserConstant;
 import com.xunban.exception.BusinessException;
 import com.xunban.mapper.UserMapper;
 import com.xunban.pojo.entity.User;
@@ -42,11 +43,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 用户脱敏
-     *
      * @param originUser
      * @return
      */
-
     @Override
     public User getSafetyUser(User originUser) {
         if (originUser == null) {
@@ -65,36 +64,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         safetyUser.setUserStatus(originUser.getUserStatus());
         safetyUser.setCreateTime(originUser.getCreateTime());
         return safetyUser;
-    }
-
-    /**
-     * 根据标签搜索用户（内存过滤）
-     *
-     * @param tagNameList 用户要拥有的标签
-     * @return
-     */
-    @Override
-    public List<User> searchUsersByTags(List<String> tagNameList) {
-        if (CollectionUtils.isEmpty(tagNameList)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        // 1. 先查询所有用户
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        List<User> userList = userMapper.selectList(queryWrapper);
-        Gson gson = new Gson();
-        // 2. 在内存中判断是否包含要求的标签
-        return userList.stream().filter(user -> {
-            String tagsStr = user.getTags();
-            Set<String> tempTagNameSet = gson.fromJson(tagsStr, new TypeToken<Set<String>>() {
-            }.getType());
-            tempTagNameSet = Optional.ofNullable(tempTagNameSet).orElse(new HashSet<>());
-            for (String tagName : tagNameList) {
-                if (!tempTagNameSet.contains(tagName)) {
-                    return false;
-                }
-            }
-            return true;
-        }).map(this::getSafetyUser).collect(Collectors.toList());
     }
 
     /**
@@ -152,6 +121,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return user.getId();
     }
 
+    /**
+     * 用户登录
+     * @param userAccount
+     * @param userPassword
+     * @param request
+     * @return
+     */
     @Override
     public User userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         // 1. 校验
@@ -193,7 +169,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 根据标签搜索用户
+     * 用户注销
+     * @param request
+     * @return
+     */
+    @Override
+    public int userLogout(HttpServletRequest request) {
+        request.getSession().removeAttribute(USER_LOGIN_STATE);
+        return 1;
+    }
+
+    /**
+     * 根据标签搜索用户（内存过滤）
+     *
+     * @param tagNameList 用户要拥有的标签
+     * @return
+     */
+    @Override
+    public List<User> searchUsersByTags(List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 1. 先查询所有用户
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        List<User> userList = userMapper.selectList(queryWrapper);
+        Gson gson = new Gson();
+        // 2. 在内存中判断是否包含要求的标签
+        return userList.stream().filter(user -> {
+            String tagsStr = user.getTags();
+            Set<String> tempTagNameSet = gson.fromJson(tagsStr, new TypeToken<Set<String>>() {
+            }.getType());
+            tempTagNameSet = Optional.ofNullable(tempTagNameSet).orElse(new HashSet<>());
+            for (String tagName : tagNameList) {
+                if (!tempTagNameSet.contains(tagName)) {
+                    return false;
+                }
+            }
+            return true;
+        }).map(this::getSafetyUser).collect(Collectors.toList());
+    }
+
+    /**
+     * 根据标签搜索用户（MySQL）
      * @param tagNameList
      * @return
      */
@@ -210,5 +227,70 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         List<User> userList = userMapper.selectList(queryWrapper);
         return userList.stream().map(this::getSafetyUser).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取当前用户信息
+     * @param request
+     * @return
+     */
+    @Override
+    public User getLoginUser(HttpServletRequest request) {
+        if(request == null) {
+            return null;
+        }
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        if(userObj == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return (User) userObj;
+    }
+
+    /**
+     * 更新用户信息
+     * @param user
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public int updateUser(User user, User loginUser) {
+        long userId = user.getId();
+        if (userId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 如果是管理员，允许更新任意用户
+        // 如果不是管理员，只允许更新当前（自己的）信息
+        if (!isAdmin(loginUser) && userId != loginUser.getId()) {
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        User oldUser = userMapper.selectById(userId);
+        if (oldUser == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR);
+        }
+        return userMapper.updateById(user);
+    }
+
+    /**
+     * 是否为管理员
+     * @param loginUser
+     * @return
+     */
+    @Override
+    public boolean isAdmin(User loginUser) {
+        return loginUser != null && loginUser.getUserRole() == UserConstant.ADMIN_ROLE;
+    }
+
+    /**
+     * 是否为管理员
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean isAdmin(HttpServletRequest request) {
+        // 仅管理员可查询
+        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user = (User) userObj;
+        return user != null && user.getUserRole() == UserConstant.ADMIN_ROLE;
     }
 }
