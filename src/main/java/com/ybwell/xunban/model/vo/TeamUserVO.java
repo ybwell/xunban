@@ -1,28 +1,28 @@
-package com.ybwell.xunban.model.domain;
+package com.ybwell.xunban.model.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 队伍
- * @TableName team
+ * 队伍和用户信息封装类（脱敏）
  */
-@TableName(value ="team")
 @Data
-public class Team implements Serializable {
+public class TeamUserVO implements Serializable {
+
+    private static final long serialVersionUID = 1899063007109226944L;
+
     /**
      * id
      */
-    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
      * 队伍名称
      */
     private String name;
+
 
     /**
      * 描述
@@ -40,19 +40,14 @@ public class Team implements Serializable {
     private Date expireTime;
 
     /**
-     * 用户id（队长 id）
+     * 用户id
      */
     private Long userId;
 
     /**
-     * 0-公开，1 -私有，2-加密
+     * 0 - 公开，1 - 私有，2 - 加密
      */
     private Integer status;
-
-    /**
-     * 密码
-     */
-    private String password;
 
     /**
      * 创建时间
@@ -60,15 +55,22 @@ public class Team implements Serializable {
     private Date createTime;
 
     /**
-     * 
+     * 更新时间
      */
     private Date updateTime;
 
     /**
-     * 是否删除
+     * 创建人用户信息
      */
-    @TableLogic
-    private Integer isDelete;
+    private UserVO createUser;
 
-    private static final long serialVersionUID = 3890554433284254681L;
+    /**
+     * 已加入的用户数
+     */
+    private Integer hasJoinNum;
+
+    /**
+     * 是否已加入队伍
+     */
+    private boolean hasJoin = false;
 }
