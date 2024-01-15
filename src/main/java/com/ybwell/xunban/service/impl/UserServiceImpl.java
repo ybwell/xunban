@@ -7,7 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import com.ybwell.xunban.common.ErrorCode;
 import com.ybwell.xunban.constant.UserConstant;
 import com.ybwell.xunban.exception.BusinessException;
-import com.ybwell.xunban.mapper.UserMapper;
+import com.ybwell.xunban.model.mapper.UserMapper;
 import com.ybwell.xunban.model.domain.User;
 import com.ybwell.xunban.service.UserService;
 import lombok.extern.slf4j.Slf4j;

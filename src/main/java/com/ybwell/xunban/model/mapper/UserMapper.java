@@ -1,4 +1,4 @@
-package com.ybwell.xunban.mapper;
+package com.ybwell.xunban.model.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ybwell.xunban.model.domain.User;

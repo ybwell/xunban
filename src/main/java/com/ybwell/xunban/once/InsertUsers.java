@@ -1,6 +1,6 @@
 package com.ybwell.xunban.once;
 
-import com.ybwell.xunban.mapper.UserMapper;
+import com.ybwell.xunban.model.mapper.UserMapper;
 import com.ybwell.xunban.model.domain.User;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;

@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@MapperScan("com.ybwell.xunban.mapper")
+@MapperScan("com.ybwell.xunban.model.mapper")
 @EnableScheduling
 public class XunbanApplication {
 
