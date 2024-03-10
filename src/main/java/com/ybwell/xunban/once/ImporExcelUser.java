@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 public class ImporExcelUser {
 
     public static void main(String[] args) {
-        // todo 记得改为自己的测试文件
-        String fileName = "E:\\星球项目\\yupao-backend\\src\\main\\resources\\prodExcel.xlsx";
+        String fileName = "E:\\study-code\testUsers.xlsx";
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet 同步读取会自动finish
         List<ExcelUserInfo> userInfoList =
                 EasyExcel.read(fileName).head(ExcelUserInfo.class).sheet().doReadSync();
