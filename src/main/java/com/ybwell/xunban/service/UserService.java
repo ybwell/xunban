@@ -13,7 +13,6 @@ public interface UserService extends IService<User> {
 
     /**
      * 用户注册
-     *
      * @param userAccount   用户账户
      * @param userPassword  用户密码
      * @param checkPassword 校验密码
@@ -83,4 +82,12 @@ public interface UserService extends IService<User> {
      * @return
      */
     boolean isAdmin(User loginUser);
+
+    /**
+     * 获取最匹配的用户
+     * @param num
+     * @param user
+     * @return
+     */
+    Object matchUsers(long num, User user);
 }

@@ -12,10 +12,10 @@ import com.ybwell.xunban.model.domain.User;
 import com.ybwell.xunban.model.domain.UserTeam;
 import com.ybwell.xunban.model.dto.TeamQuery;
 import com.ybwell.xunban.model.vo.TeamUserVO;
-import com.ybwell.xunban.request.TeamAddRequest;
-import com.ybwell.xunban.request.TeamJoinRequest;
-import com.ybwell.xunban.request.TeamQuitRequest;
-import com.ybwell.xunban.request.TeamUpdateRequest;
+import com.ybwell.xunban.model.request.TeamAddRequest;
+import com.ybwell.xunban.model.request.TeamJoinRequest;
+import com.ybwell.xunban.model.request.TeamQuitRequest;
+import com.ybwell.xunban.model.request.TeamUpdateRequest;
 import com.ybwell.xunban.service.TeamService;
 import com.ybwell.xunban.service.UserService;
 import com.ybwell.xunban.service.UserTeamService;
@@ -209,5 +209,56 @@ public class TeamController {
         User loginUser = userService.getLoginUser(request);
         boolean result = teamService.quitTeam(teamQuitRequest, loginUser);
         return ResultUtils.success(result);
+    }
+
+    /**
+     * 获取我创建的队伍
+     *
+     * @param teamQuery
+     * @param request
+     * @return
+     */
+    @GetMapping("/list/my/create")
+    public BaseResponse<List<TeamUserVO>> listMyCreateTeams(TeamQuery teamQuery, HttpServletRequest request) {
+        if (teamQuery == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        teamQuery.setUserId(loginUser.getId());
+        List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
+        return ResultUtils.success(teamList);
+    }
+
+
+    /**
+     * 获取我加入的队伍
+     *
+     * @param teamQuery
+     * @param request
+     * @return
+     */
+    @GetMapping("/list/my/join")
+    public BaseResponse<List<TeamUserVO>> listMyJoinTeams(TeamQuery teamQuery, HttpServletRequest request) {
+        if (teamQuery == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User loginUser = userService.getLoginUser(request);
+        QueryWrapper<UserTeam> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId", loginUser.getId());
+        List<UserTeam> userTeamList = userTeamService.list(queryWrapper);
+        // 取出不重复的队伍 id
+        // teamId userId
+        // 1, 2
+        // 1, 3
+        // 2, 3
+        // result
+        // 1 => 2, 3
+        // 2 => 3
+        Map<Long, List<UserTeam>> listMap = userTeamList.stream()
+                .collect(Collectors.groupingBy(UserTeam::getTeamId));
+        List<Long> idList = new ArrayList<>(listMap.keySet());
+        teamQuery.setIdList(idList);
+        List<TeamUserVO> teamList = teamService.listTeams(teamQuery, true);
+        return ResultUtils.success(teamList);
     }
 }

@@ -42,7 +42,9 @@ logging:
 
 server:
   port: 8080
-  session:
-    cookie:
-      domain: localhost
+  servlet:
+    context-path: /api
+    session:
+      cookie:
+        domain: localhost
 

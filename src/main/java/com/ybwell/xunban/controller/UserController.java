@@ -7,8 +7,8 @@ import com.ybwell.xunban.common.ErrorCode;
 import com.ybwell.xunban.common.ResultUtils;
 import com.ybwell.xunban.exception.BusinessException;
 import com.ybwell.xunban.model.domain.User;
-import com.ybwell.xunban.request.UserLoginRequest;
-import com.ybwell.xunban.request.UserRegisterRequest;
+import com.ybwell.xunban.model.request.UserLoginRequest;
+import com.ybwell.xunban.model.request.UserRegisterRequest;
 import com.ybwell.xunban.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -144,6 +144,24 @@ public class UserController {
     }
 
     /**
+     * 删除用户
+     * @param id
+     * @param request
+     * @return
+     */
+    @PostMapping("/delete")
+    public BaseResponse<Boolean> deleteUser(@RequestBody long id, HttpServletRequest request) {
+        if (!userService.isAdmin(request)) {
+            throw new BusinessException(ErrorCode.NO_AUTH);
+        }
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        boolean b = userService.removeById(id);
+        return ResultUtils.success(b);
+    }
+
+    /**
      * 推荐用户
      * @param pageSize
      * @param pageNum
@@ -170,6 +188,21 @@ public class UserController {
             log.error("redis set key error", e);
         }
         return ResultUtils.success(userPage);
+    }
+
+    /**
+     * 获取最匹配的用户
+     * @param num
+     * @param request
+     * @return
+     */
+    @GetMapping("/match")
+    public BaseResponse<List<User>> matchUsers(long num, HttpServletRequest request) {
+        if (num <= 0 || num > 20) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getLoginUser(request);
+        return ResultUtils.success((List<User>) userService.matchUsers(num, user));
     }
 
 }

@@ -1,4 +1,4 @@
-package com.ybwell.xunban.request;
+package com.ybwell.xunban.model.request;
 
 
 import lombok.Data;

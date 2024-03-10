@@ -5,9 +5,9 @@ import com.ybwell.xunban.model.domain.Team;
 import com.ybwell.xunban.model.domain.User;
 import com.ybwell.xunban.model.dto.TeamQuery;
 import com.ybwell.xunban.model.vo.TeamUserVO;
-import com.ybwell.xunban.request.TeamJoinRequest;
-import com.ybwell.xunban.request.TeamQuitRequest;
-import com.ybwell.xunban.request.TeamUpdateRequest;
+import com.ybwell.xunban.model.request.TeamJoinRequest;
+import com.ybwell.xunban.model.request.TeamQuitRequest;
+import com.ybwell.xunban.model.request.TeamUpdateRequest;
 
 import java.util.List;
 
